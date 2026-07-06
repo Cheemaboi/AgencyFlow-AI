@@ -3,22 +3,28 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ModalPreview } from "@/components/ui/modal-preview";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { projectFilters, projectInsights, projectsBoardColumns } from "@/lib/mock";
+import { getProjectsBoardData } from "@/lib/data/projects";
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const data = await getProjectsBoardData();
+
   return (
     <div className="space-y-6">
       <PageHeader
         eyebrow="Projects"
         title="A complete board view with filters, budgets, and workflow signals"
-        description="The project pipeline now behaves like a polished product surface, with realistic card density, financial context, and AI bottleneck cues."
+        description={
+          data.usingFallback
+            ? "This board is still using polished fallback columns until live project records are available."
+            : "This board now reflects live organization project structure, grouped by actual stored stages."
+        }
       />
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_292px]">
         <div className="min-w-0 space-y-4">
           <Card className="p-4">
             <div className="flex flex-wrap gap-3">
-              {projectFilters.map((filter, index) => (
+              {data.filters.map((filter, index) => (
                 <Badge key={filter} tone={index === 0 ? "accent" : "muted"}>
                   {filter}
                 </Badge>
@@ -29,7 +35,7 @@ export default function ProjectsPage() {
           <div className="max-w-full overflow-hidden rounded-[28px]">
             <div className="scroll-row w-full pb-3">
               <div className="flex min-w-max gap-5 pr-2">
-                {projectsBoardColumns.map((column) => (
+                {data.boardColumns.map((column) => (
                   <Card key={column.title} className="w-[296px] p-4">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-lg font-semibold tracking-[-0.03em]">{column.title}</h2>
@@ -73,11 +79,7 @@ export default function ProjectsPage() {
               Board summary
             </p>
             <div className="mt-5 grid gap-3">
-              {[
-                ["Projects in motion", "8"],
-                ["Review-stage value", "$22.7k"],
-                ["Next milestone due", "Jul 12"],
-              ].map(([label, value]) => (
+              {data.summary.map(([label, value]) => (
                 <div key={label} className="rounded-[18px] border border-[var(--border-subtle)] p-4">
                   <p className="text-sm text-[var(--text-secondary)]">{label}</p>
                   <p className="mt-2 text-2xl font-semibold tracking-[-0.03em]">{value}</p>
@@ -91,7 +93,7 @@ export default function ProjectsPage() {
               AI insights
             </p>
             <div className="mt-5 space-y-3">
-              {projectInsights.map((insight) => (
+              {data.insights.map((insight) => (
                 <div key={insight} className="rounded-[18px] border border-[var(--border-subtle)] p-4">
                   <p className="text-sm leading-7 text-[var(--text-secondary)]">{insight}</p>
                 </div>

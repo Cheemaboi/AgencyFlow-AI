@@ -4,29 +4,25 @@ import { Card } from "@/components/ui/card";
 import { MiniBarChart } from "@/components/ui/mini-bar-chart";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
-import {
-  aiBrief,
-  dashboardMetrics,
-  overviewTasks,
-  projectHealth,
-  quickActions,
-  recentActivity,
-  recentFiles,
-  revenueByClient,
-  upcomingMeetings,
-} from "@/lib/mock";
+import { getDashboardData } from "@/lib/data/dashboard";
 
-export default function AppHomePage() {
+export default async function AppHomePage() {
+  const data = await getDashboardData();
+
   return (
     <div className="space-y-6">
       <PageHeader
         eyebrow="Overview"
         title="A polished command center for day-to-day agency operations"
-        description="This dashboard now acts like a real premium SaaS overview with AI quick actions, delivery signals, meetings, activity, and operational summaries all working together."
+        description={
+          data.usingFallback
+            ? "This dashboard is still showing polished fallback data until Supabase records are available for your account."
+            : `Live organization data is now feeding this overview for ${data.organizationName}.`
+        }
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {dashboardMetrics.map((metric) => (
+        {data.dashboardMetrics.map((metric) => (
           <StatCard key={metric.label} {...metric} />
         ))}
       </section>
@@ -43,7 +39,7 @@ export default function AppHomePage() {
             <Badge tone="accent">Assistant ready</Badge>
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {quickActions.map((item) => (
+            {data.quickActions.map((item) => (
               <button
                 key={item}
                 className="inset-card px-4 py-4 text-left text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--accent-soft)]"
@@ -60,7 +56,7 @@ export default function AppHomePage() {
             Today&apos;s client and delivery readout
           </h2>
           <div className="mt-6 space-y-3">
-            {aiBrief.map((item) => (
+            {data.aiBrief.map((item) => (
               <div key={item} className="inset-card p-4">
                 <p className="text-sm leading-7 text-[var(--text-secondary)]">{item}</p>
               </div>
@@ -74,7 +70,7 @@ export default function AppHomePage() {
           <p className="section-kicker">Daily rhythm</p>
           <h2 className="text-xl font-semibold tracking-[-0.03em]">Today&apos;s tasks</h2>
           <div className="mt-5 grid gap-3">
-            {overviewTasks.map((item) => (
+            {data.overviewTasks.map((item) => (
               <div key={item.title} className="inset-card p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold">{item.title}</p>
@@ -95,7 +91,7 @@ export default function AppHomePage() {
           <p className="section-kicker">Delivery status</p>
           <h2 className="text-xl font-semibold tracking-[-0.03em]">Project health</h2>
           <div className="mt-5 space-y-4">
-            {projectHealth.map((project) => (
+            {data.projectHealth.map((project) => (
               <div key={project.name} className="inset-card p-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -117,7 +113,7 @@ export default function AppHomePage() {
           <p className="section-kicker">Calendar</p>
           <h2 className="text-xl font-semibold tracking-[-0.03em]">Upcoming meetings</h2>
           <div className="mt-5 space-y-3">
-            {upcomingMeetings.map((meeting) => (
+            {data.upcomingMeetings.map((meeting) => (
               <div key={meeting.title} className="inset-card p-4">
                 <p className="font-semibold">{meeting.title}</p>
                 <p className="mt-1 text-sm text-[var(--text-secondary)]">{meeting.time}</p>
@@ -135,7 +131,7 @@ export default function AppHomePage() {
           <p className="section-kicker">Signals</p>
           <h2 className="text-xl font-semibold tracking-[-0.03em]">Recent client activity</h2>
           <div className="mt-5 space-y-4">
-            {recentActivity.map((item) => (
+            {data.recentActivity.map((item) => (
               <div key={item.title} className="flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-4 last:border-b-0 last:pb-0">
                 <div>
                   <p className="font-semibold">{item.title}</p>
@@ -153,7 +149,7 @@ export default function AppHomePage() {
           <p className="section-kicker">Asset view</p>
           <h2 className="text-xl font-semibold tracking-[-0.03em]">Recent files</h2>
           <div className="mt-5 space-y-3">
-            {recentFiles.map((file) => (
+            {data.recentFiles.map((file) => (
               <div key={file.name} className="inset-card p-4">
                 <p className="font-semibold">{file.name}</p>
                 <div className="mt-3 flex items-center justify-between gap-3 text-sm text-[var(--text-secondary)]">
@@ -169,7 +165,7 @@ export default function AppHomePage() {
           <p className="section-kicker">Revenue mix</p>
           <h2 className="text-xl font-semibold tracking-[-0.03em]">Revenue by client</h2>
           <div className="mt-5">
-            <MiniBarChart items={revenueByClient.map((item) => ({ label: item.client, value: item.value }))} suffix="%" />
+            <MiniBarChart items={data.revenueByClient.map((item) => ({ label: item.client, value: item.value }))} suffix="%" />
           </div>
         </Card>
       </section>

@@ -312,7 +312,7 @@ export const conversations = [
     name: "Northshore weekly review",
     project: "Northshore Rebrand",
     unread: 3,
-    preview: "Can we include the mobile cut in tomorrow’s review deck?",
+    preview: "Can we include the mobile cut in tomorrow's review deck?",
     time: "10:42 AM",
   },
   {
@@ -333,7 +333,7 @@ export const conversations = [
 
 export const activeMessages = [
   { author: "Sarah", side: "left", body: "The latest homepage direction feels strong. Can we see one mobile-first variant before sign-off?" },
-  { author: "Amna", side: "right", body: "Absolutely. We’re packaging the mobile cut this afternoon and can send it with notes." },
+  { author: "Amna", side: "right", body: "Absolutely. We're packaging the mobile cut this afternoon and can send it with notes." },
   { author: "Daniel", side: "left", body: "Please include the revised headline lockup in the same share." },
 ];
 
