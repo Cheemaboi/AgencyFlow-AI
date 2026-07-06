@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logoutAction } from "@/app/auth/actions";
 import { Logo } from "@/components/brand/logo";
 import { Input } from "@/components/ui/input";
 import { appNavigation } from "@/lib/navigation";
@@ -40,11 +41,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="surface-panel mt-4 p-4">
             <p className="text-sm font-semibold tracking-[-0.02em]">
-              Auth guard plan
+              Auth guard live
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-              `/app` routes are ready to switch to enforced protection when Supabase auth
-              is connected in Phase 3.
+              `/app` routes now support server-side session checks and are ready for
+              Supabase-backed role enforcement.
             </p>
           </div>
         </aside>
@@ -60,6 +61,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="flex flex-wrap items-center gap-3">
               <span className="pill pill-muted">Vercel-ready baseline</span>
               <span className="pill pill-accent">Supabase scaffolded</span>
+              <form action={logoutAction}>
+                <button className="pill pill-muted transition-colors hover:bg-[var(--bg-surface-alt)]">
+                  Sign out
+                </button>
+              </form>
             </div>
           </header>
           <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-6">{children}</main>

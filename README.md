@@ -1,6 +1,6 @@
 # AgencyFlow AI
 
-Phase 1 foundation for a premium agency client portal built with Next.js App Router, Tailwind CSS v4, and Supabase-ready utilities.
+AgencyFlow AI is a premium agency client portal built with Next.js App Router, Tailwind CSS v4, and Supabase for auth, database, and storage.
 
 ## Scripts
 
@@ -20,10 +20,16 @@ Copy `.env.example` to `.env.local` and fill in Supabase values when available.
 - `SUPABASE_SERVICE_ROLE_KEY`: server-only key for privileged operations in later phases
 - `NEXT_PUBLIC_ENABLE_AUTH_GUARDS`: set to `true` once real auth is ready and `/app` routes should redirect unauthenticated visitors
 
-## Phase 1 coverage
+## Current Phase 3 baseline
 
-- public marketing, login, and signup routes
-- authenticated app shell scaffold
-- reusable card, button, input, badge, tabs, and stat components
-- green design tokens with dark-mode planning
-- Supabase browser/server helpers and proxy-based auth guard plan
+- real login, signup, and logout actions are wired through Supabase auth
+- `/app` now performs server-side auth checks when Supabase envs are configured
+- `supabase/migrations` contains the first core schema + RLS baseline for organizations, projects, workspaces, files, approvals, billing, notifications, and AI history
+- the UI still falls back safely when Supabase env values have not been added yet
+
+## Next steps
+
+- apply the SQL migration in Supabase
+- add your real Supabase keys to `.env.local`
+- turn on `NEXT_PUBLIC_ENABLE_AUTH_GUARDS=true`
+- continue wiring CRUD, storage uploads, approvals, and role-aware views

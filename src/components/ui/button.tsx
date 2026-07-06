@@ -3,8 +3,10 @@ import Link from "next/link";
 type ButtonProps = {
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
   href?: string;
   size?: "md" | "lg";
+  type?: "button" | "submit" | "reset";
   variant?: "primary" | "secondary" | "ghost";
 };
 
@@ -31,8 +33,10 @@ function getStyles(
 export function Button({
   children,
   className = "",
+  disabled = false,
   href,
   size = "md",
+  type = "button",
   variant = "primary",
 }: ButtonProps) {
   const styles = `${getStyles(variant, size)} ${className}`.trim();
@@ -45,5 +49,9 @@ export function Button({
     );
   }
 
-  return <button className={styles}>{children}</button>;
+  return (
+    <button className={styles} disabled={disabled} type={type}>
+      {children}
+    </button>
+  );
 }
