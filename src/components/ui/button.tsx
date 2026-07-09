@@ -23,7 +23,7 @@ function getStyles(
   const variants = {
     primary: "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary-hover)]",
     secondary:
-      "border border-[var(--border-subtle)] bg-white text-[var(--text-primary)] hover:bg-[var(--bg-surface-alt)]",
+      "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:bg-[var(--bg-surface-alt)]",
     ghost: "text-[var(--text-primary)] hover:bg-white/70",
   };
 

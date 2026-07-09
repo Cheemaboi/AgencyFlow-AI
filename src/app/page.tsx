@@ -13,11 +13,11 @@ export default function Home() {
       <PublicHeader />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 pb-16 pt-6 sm:px-8 lg:px-10">
         <section className="surface-panel overflow-hidden px-6 py-8 sm:px-10 sm:py-12">
-          <div className="grid gap-10 lg:grid-cols-[1.25fr_0.85fr] lg:items-center">
-            <div className="space-y-8">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.86fr)] lg:items-center">
+            <div className="min-w-0 space-y-8">
               <Badge tone="accent">Phase 1 Foundation Ready</Badge>
               <div className="space-y-5">
-                <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-[var(--text-primary)] sm:text-5xl lg:text-6xl">
+                <h1 className="max-w-3xl text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-[var(--text-primary)] sm:text-5xl lg:text-6xl">
                   A premium client portal foundation for agencies that need calm,
                   control, and visible polish.
                 </h1>
@@ -51,14 +51,14 @@ export default function Home() {
                 </Button>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                {dashboardMetrics.map((metric) => (
-                  <StatCard key={metric.label} {...metric} compact />
+                {dashboardMetrics.map((metric, index) => (
+                  <StatCard key={`${metric.label}-${metric.value}-${index}`} {...metric} compact />
                 ))}
               </div>
             </div>
-            <Card className="grid-lines relative overflow-hidden p-6 sm:p-8">
+            <Card className="grid-lines relative min-w-0 overflow-hidden p-6 sm:p-8">
               <div className="space-y-8">
-                <div className="inline-flex max-w-full rounded-[24px] border border-white/80 bg-white/76 px-5 py-4 shadow-[0_18px_36px_rgba(16,24,40,0.05)] backdrop-blur-sm">
+                <div className="hero-logo-panel inline-flex max-w-full rounded-[24px] px-5 py-4 backdrop-blur-sm">
                   <Logo
                     variant="horizontal"
                     className="items-center gap-4 [&_.text-lg]:text-[1.9rem] [&_.text-xs]:tracking-[0.24em]"
@@ -73,10 +73,10 @@ export default function Home() {
                   </h2>
                 </div>
                 <div className="space-y-4">
-                  {phaseOnePreview.map((item) => (
+                  {phaseOnePreview.map((item, index) => (
                     <div
-                      key={item.title}
-                      className="rounded-[22px] border border-white/70 bg-white/80 p-4 shadow-[0_18px_32px_rgba(16,24,40,0.05)]"
+                      key={`${item.title}-${item.tag}-${index}`}
+                      className="hero-preview-card rounded-[22px] p-4"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div>
@@ -98,8 +98,8 @@ export default function Home() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-3">
-          {marketingHighlights.map((item) => (
-            <Card key={item.title} className="p-6">
+          {marketingHighlights.map((item, index) => (
+            <Card key={`${item.title}-${item.eyebrow}-${index}`} className="p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent-primary-hover)]">
                 {item.eyebrow}
               </p>

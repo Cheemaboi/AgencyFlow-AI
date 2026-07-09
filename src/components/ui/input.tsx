@@ -9,9 +9,11 @@ export function Input({
   ariaLabel,
   autoComplete,
   defaultValue,
+  disabled,
   label,
   name,
   placeholder,
+  readOnly,
   required,
   type = "text",
   value,
@@ -20,10 +22,12 @@ export function Input({
     <input
       aria-label={ariaLabel ?? label}
       autoComplete={autoComplete}
-      className="h-12 w-full rounded-[18px] border border-[var(--border-subtle)] bg-white px-4 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-secondary)] focus:border-[var(--accent-primary)]"
+      className="h-12 w-full rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-secondary)] focus:border-[var(--accent-primary)] disabled:cursor-not-allowed disabled:opacity-70"
       defaultValue={defaultValue}
+      disabled={disabled}
       name={name}
       placeholder={placeholder}
+      readOnly={readOnly}
       required={required}
       type={type}
       value={value}

@@ -6,19 +6,46 @@ import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/auth/actions";
 import { Logo } from "@/components/brand/logo";
 import { Input } from "@/components/ui/input";
+import type { OrganizationContext } from "@/lib/data/organization";
 import { appNavigation } from "@/lib/navigation";
 
-export function AppShell({ children }: { children: ReactNode }) {
+function getInitials(value: string) {
+  const parts = value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (parts.length === 0) {
+    return "AF";
+  }
+
+  return parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
+}
+
+function formatRole(role: string) {
+  return role.replace(/_/g, " ");
+}
+
+type AppShellProps = {
+  children: ReactNode;
+  organization: OrganizationContext | null;
+};
+
+export function AppShell({ children, organization }: AppShellProps) {
   const pathname = usePathname();
+  const identityName = organization?.fullName ?? "Agency owner";
+  const identityInitials = getInitials(identityName);
+  const roleLabel = organization?.roleTitle ?? (organization?.role ? formatRole(organization.role) : "admin");
 
   return (
     <div className="min-h-screen px-4 py-4 sm:px-6 sm:py-6">
-      <div className="mx-auto grid min-h-[calc(100vh-2rem)] w-full max-w-[1600px] gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="surface-card order-2 flex flex-col overflow-hidden px-4 py-5 sm:px-5 lg:order-1">
+      <div className="mx-auto grid min-h-[calc(100vh-2rem)] w-full max-w-[1600px] items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="surface-card flex min-w-0 flex-col overflow-hidden px-4 py-5 sm:px-5">
           <div className="border-b border-[var(--border-subtle)] pb-5">
             <Logo href="/" />
           </div>
-          <nav className="mt-5 flex gap-2 overflow-x-auto pb-1 lg:flex-1 lg:flex-col lg:overflow-visible lg:pb-0">
+          <nav className="mt-5 flex flex-wrap gap-2 lg:flex-1 lg:flex-col">
             {appNavigation.map((item) => {
               const active =
                 pathname === item.href ||
@@ -28,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`whitespace-nowrap rounded-[18px] px-4 py-3 text-sm font-semibold transition-colors ${
+                  className={`rounded-[18px] px-4 py-3 text-sm font-semibold transition-colors ${
                     active
                       ? "bg-[var(--accent-soft)] text-[var(--accent-primary-hover)]"
                       : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface-alt)] hover:text-[var(--text-primary)]"
@@ -39,28 +66,45 @@ export function AppShell({ children }: { children: ReactNode }) {
               );
             })}
           </nav>
-          <div className="surface-panel mt-4 p-4">
-            <p className="text-sm font-semibold tracking-[-0.02em]">
-              Auth guard live
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-              `/app` routes now support server-side session checks and are ready for
-              Supabase-backed role enforcement.
-            </p>
+          <div className="surface-panel mt-4 flex items-start gap-3 p-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[var(--accent-soft)] text-sm font-semibold text-[var(--accent-primary-hover)]">
+              {identityInitials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
+                {identityName}
+              </p>
+              <p className="mt-1 truncate text-xs uppercase tracking-[0.2em] text-[var(--accent-primary-hover)]">
+                {roleLabel}
+              </p>
+              <p className="mt-2 truncate text-sm text-[var(--text-secondary)]">
+                {organization?.organizationName ?? "AgencyFlow AI"}
+              </p>
+              <p className="mt-1 break-all text-xs leading-5 text-[var(--text-secondary)]">
+                {organization?.email ?? "Connect Supabase to load account identity."}
+              </p>
+            </div>
           </div>
         </aside>
 
-        <div className="surface-card order-1 flex min-w-0 flex-col lg:order-2">
+        <div className="surface-card flex min-w-0 flex-col">
           <header className="flex flex-col gap-4 border-b border-[var(--border-subtle)] px-4 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
-            <div className="w-full xl:max-w-md">
+            <div className="min-w-0 w-full xl:max-w-md">
               <Input
                 ariaLabel="Search the workspace"
-                placeholder="Search projects, clients, files, and notes"
+                placeholder={`Search ${organization?.organizationName ?? "projects"}, files, and notes`}
               />
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="pill pill-muted">Vercel-ready baseline</span>
-              <span className="pill pill-accent">Supabase scaffolded</span>
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <div className="min-w-0 max-w-full rounded-[18px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3">
+                <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                  {identityName}
+                </p>
+                <p className="truncate text-xs text-[var(--text-secondary)]">
+                  {organization?.organizationName ?? "AgencyFlow AI"}
+                </p>
+              </div>
+              <span className="pill pill-accent">{roleLabel}</span>
               <form action={logoutAction}>
                 <button className="pill pill-muted transition-colors hover:bg-[var(--bg-surface-alt)]">
                   Sign out

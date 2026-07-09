@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 type SignupPageProps = {
   searchParams: Promise<{
@@ -28,7 +29,26 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em]">
             Create your agency owner account
           </h1>
+          <p className="mt-3 max-w-xl text-sm leading-7 text-[var(--text-secondary)]">
+            Set up the real owner identity that appears inside the app shell, then
+            attach it to the agency workspace your clients will recognize.
+          </p>
           <form action={signupAction} className="mt-6 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                autoComplete="name"
+                label="Full name"
+                name="fullName"
+                placeholder="Hamza Cheema"
+                required
+              />
+              <Input
+                autoComplete="organization-title"
+                label="Role or title"
+                name="roleTitle"
+                placeholder="Founder"
+              />
+            </div>
             <Input
               autoComplete="organization"
               label="Agency name"
@@ -44,13 +64,19 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
               required
               type="email"
             />
-            <Input
+            <PasswordInput
               autoComplete="new-password"
               label="Password"
               name="password"
               placeholder="Create a password"
               required
-              type="password"
+            />
+            <PasswordInput
+              autoComplete="new-password"
+              label="Confirm password"
+              name="confirmPassword"
+              placeholder="Re-enter your password"
+              required
             />
             {error ? (
               <p className="rounded-[18px] border border-[rgba(239,107,107,0.28)] bg-[rgba(239,107,107,0.08)] px-4 py-3 text-sm text-[var(--danger)]">
@@ -75,11 +101,11 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           </p>
           <div className="mt-6 grid gap-4">
             {[
-              "Your account is ready to bootstrap an organization profile and owner membership.",
-              "Supabase client and server utilities now support real auth actions and protected routes.",
-              "The visual system and app shell stay intact while Phase 3 data and role wiring lands underneath.",
-            ].map((item) => (
-              <div key={item} className="surface-card p-4">
+              "Your owner profile now carries a real full name instead of recycling the company name.",
+              "The agency identity you enter here becomes the organization record used across protected routes.",
+              "Phase 3 now has the right shape for future profile icons, richer member details, and invite flows.",
+            ].map((item, index) => (
+              <div key={`${item}-${index}`} className="surface-card p-4">
                 <p className="text-sm leading-7 text-[var(--text-secondary)]">{item}</p>
               </div>
             ))}

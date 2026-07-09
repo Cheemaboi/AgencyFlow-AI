@@ -17,8 +17,8 @@ export default function FeaturesPage() {
           </h1>
         </section>
         <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {productModules.map((module) => (
-            <Card key={module.title} className="p-6">
+          {productModules.map((module, index) => (
+            <Card key={`${module.title}-${module.route}-${index}`} className="p-6">
               <p className="text-sm font-semibold text-[var(--accent-primary-hover)]">
                 {module.route}
               </p>

@@ -2,8 +2,9 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { env, hasSupabaseEnv } from "@/lib/env";
 import { isProtectedPath } from "@/lib/auth/route-access";
+import { createSupabaseRouteClient } from "@/lib/supabase/route";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -14,11 +15,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasSession =
-    request.cookies.has("sb-access-token") || request.cookies.has("sb-refresh-token");
+  const response = NextResponse.next();
+  const supabase = createSupabaseRouteClient(request, response);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (hasSession) {
-    return NextResponse.next();
+  if (user) {
+    return response;
   }
 
   const loginUrl = new URL("/login", request.url);

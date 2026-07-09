@@ -16,9 +16,11 @@ import {
   titleFromStage,
 } from "@/lib/data/format";
 import { getCurrentOrganizationContext } from "@/lib/data/organization";
+import { splitAiText } from "@/lib/ai";
 
 type DashboardData = {
   aiBrief: string[];
+  aiInputSummary: string;
   dashboardMetrics: typeof dashboardMetrics;
   organizationName?: string;
   overviewTasks: typeof overviewTasks;
@@ -34,6 +36,12 @@ type DashboardData = {
 function fallbackDashboardData(): DashboardData {
   return {
     aiBrief,
+    aiInputSummary: [
+      "Organization: AgencyFlow AI",
+      ...dashboardMetrics.map((metric) => `${metric.label}: ${metric.value} (${metric.helper})`),
+      ...projectHealth.map((project) => `${project.name}: ${project.status} at ${project.progress}%`),
+      ...aiBrief,
+    ].join("\n"),
     dashboardMetrics,
     overviewTasks,
     projectHealth,
@@ -46,6 +54,24 @@ function fallbackDashboardData(): DashboardData {
   };
 }
 
+function buildRevenueMix(organizationName: string, projectNames: string[]) {
+  if (projectNames.length <= 1) {
+    const orgShort = organizationName.split(" ")[0] || "Primary";
+
+    return [
+      { client: orgShort, value: 38 },
+      { client: "Pipeline", value: 24 },
+      { client: "Review", value: 21 },
+      { client: "Other", value: 17 },
+    ];
+  }
+
+  return projectNames.slice(0, 4).map((name, index) => ({
+    client: index === 0 ? organizationName.split(" ")[0] : name.split(" ")[0],
+    value: Math.max(12, 38 - index * 8),
+  }));
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
   const context = await getCurrentOrganizationContext();
 
@@ -54,7 +80,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   const supabase = await createSupabaseServerClient();
-  const [projectsResult, tasksResult, approvalsResult, invoicesResult, filesResult, activityResult] =
+  const [projectsResult, tasksResult, approvalsResult, invoicesResult, filesResult, activityResult, latestAiResult] =
     await Promise.all([
       supabase
         .from("projects")
@@ -87,6 +113,14 @@ export async function getDashboardData(): Promise<DashboardData> {
         .eq("organization_id", context.organizationId)
         .order("created_at", { ascending: false })
         .limit(4),
+      supabase
+        .from("ai_generations")
+        .select("output_text")
+        .eq("organization_id", context.organizationId)
+        .eq("prompt_type", "dashboard_summary")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
 
   if (
@@ -121,19 +155,16 @@ export async function getDashboardData(): Promise<DashboardData> {
   ).length;
 
   const generatedProjectHealth = projects.slice(0, 3).map((project, index) => ({
-      name: project.name,
-      owner: `Org: ${context.organizationName}`,
-      status: titleFromStage(project.stage),
-      progress: Math.max(18, 82 - index * 12),
-    }));
+    name: project.name,
+    owner: `Org: ${context.organizationName}`,
+    status: titleFromStage(project.stage),
+    progress: Math.max(18, 82 - index * 12),
+  }));
 
-  const generatedRevenueMix = projects.slice(0, 4).map((project, index) => ({
-      client:
-        index === 0
-          ? context.organizationName.split(" ")[0]
-          : project.name.split(" ")[0],
-      value: Math.max(12, 38 - index * 8),
-    }));
+  const generatedRevenueMix = buildRevenueMix(
+    context.organizationName,
+    projects.map((project) => project.name),
+  );
 
   const generatedAiBrief = approvals.slice(0, 3).map((approval) => {
     const dueText = approval.due_date
@@ -155,8 +186,35 @@ export async function getDashboardData(): Promise<DashboardData> {
     status: titleFromStage(file.status),
   }));
 
+  const generatedTasks = tasks.slice(0, 3).map((task) => ({
+    title: task.title,
+    time: task.due_date ? formatShortDate(task.due_date) : "Upcoming",
+    owner: context.organizationName,
+    description: task.description ?? `Current task state: ${titleFromStage(task.state)}.`,
+  }));
+  const aiInputSummary = [
+    `Organization: ${context.organizationName}`,
+    `Projects: ${projects.length}`,
+    `Active projects: ${activeProjectCount}`,
+    `Pending approvals: ${approvals.filter((approval) => approval.state === "pending_review").length}`,
+    `Due invoices: ${dueInvoices.length}`,
+    `Tracked revenue: ${formatCompactCurrencyFromCents(totalInvoiceAmount)}`,
+    ...projects.slice(0, 4).map((project) => {
+      const budget = formatCompactCurrencyFromCents(project.budget_cents ?? 0);
+      return `${project.name}: ${titleFromStage(project.stage)} with budget ${budget} due ${project.due_date ? formatShortDate(project.due_date) : "TBD"}`;
+    }),
+    ...approvals.slice(0, 3).map((approval) => {
+      return `${approval.title}: ${titleFromStage(approval.state)} due ${approval.due_date ? formatShortDate(approval.due_date) : "TBD"}`;
+    }),
+  ].join("\n");
+
   return {
-    aiBrief: generatedAiBrief.length ? generatedAiBrief : aiBrief,
+    aiBrief: latestAiResult.data?.output_text
+      ? splitAiText(latestAiResult.data.output_text)
+      : generatedAiBrief.length
+        ? generatedAiBrief
+        : aiBrief,
+    aiInputSummary,
     dashboardMetrics: [
       {
         label: "Active projects",
@@ -184,13 +242,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       },
     ],
     organizationName: context.organizationName,
-    overviewTasks:
-      tasks.slice(0, 3).map((task) => ({
-        title: task.title,
-        time: task.due_date ? formatShortDate(task.due_date) : "Upcoming",
-        owner: context.organizationName,
-        description: task.description ?? `Current task state: ${titleFromStage(task.state)}.`,
-      })) || overviewTasks,
+    overviewTasks: generatedTasks.length ? generatedTasks : overviewTasks,
     projectHealth: generatedProjectHealth.length ? generatedProjectHealth : projectHealth,
     quickActions,
     recentActivity: generatedRecentActivity.length ? generatedRecentActivity : recentActivity,

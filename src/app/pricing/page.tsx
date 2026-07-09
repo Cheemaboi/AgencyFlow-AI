@@ -34,8 +34,8 @@ export default function PricingPage() {
           </h1>
         </section>
         <section className="grid gap-6 lg:grid-cols-3">
-          {tiers.map((tier) => (
-            <Card key={tier.name} className="p-6">
+          {tiers.map((tier, index) => (
+            <Card key={`${tier.name}-${tier.price}-${index}`} className="p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--accent-primary-hover)]">
                 {tier.name}
               </p>

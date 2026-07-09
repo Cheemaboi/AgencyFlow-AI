@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -81,13 +82,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 required
                 type="email"
               />
-              <Input
+              <PasswordInput
                 autoComplete="current-password"
                 label="Password"
                 name="password"
                 placeholder="Enter your password"
                 required
-                type="password"
               />
               {error ? (
                 <p className="rounded-[18px] border border-[rgba(239,107,107,0.28)] bg-[rgba(239,107,107,0.08)] px-4 py-3 text-sm text-[var(--danger)]">
@@ -103,6 +103,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Sign in to AgencyFlow AI
               </Button>
             </form>
+            <p className="text-sm text-[var(--text-secondary)]">
+              Trouble signing in?{" "}
+              <Link
+                href="/forgot-password"
+                className="font-semibold text-[var(--accent-primary-hover)]"
+              >
+                Reset your password
+              </Link>
+              .
+            </p>
             <p className="text-sm text-[var(--text-secondary)]">
               Need an account?{" "}
               <Link href="/signup" className="font-semibold text-[var(--accent-primary-hover)]">
